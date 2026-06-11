@@ -57,8 +57,8 @@ export default function TournamentExport({ tournament, players }: Props) {
   const playoffWithLabels = (hasPlayoff ? [...tournament.playoffMatches] : getPlayoffPreview(tournament))
     .map(m => {
       const isConsolation = m.round !== 10 && m.round !== 1 && m.round !== 4 && 
-        !(m.round === 2 && m.position === 1) && 
-        !(m.round === 3);
+        m.round !== 2 && 
+        m.round !== 3;
       if (isConsolation) {
         return { ...m, label: `Playdown ${consIndex++}` };
       }
