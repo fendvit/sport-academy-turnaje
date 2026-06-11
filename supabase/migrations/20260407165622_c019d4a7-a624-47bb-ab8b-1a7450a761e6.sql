@@ -1,0 +1,1 @@
+ALTER TABLE public.teams ADD COLUMN trainer text DEFAULT null;

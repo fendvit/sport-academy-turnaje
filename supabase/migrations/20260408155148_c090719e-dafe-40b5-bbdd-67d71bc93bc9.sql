@@ -1,0 +1,1 @@
+ALTER TABLE public.tournaments ADD COLUMN playoff_start_time text DEFAULT NULL;

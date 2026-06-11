@@ -1,0 +1,1 @@
+ALTER TABLE public.tournaments ADD COLUMN round_count integer NOT NULL DEFAULT 1;

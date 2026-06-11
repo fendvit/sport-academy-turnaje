@@ -1,0 +1,1 @@
+ALTER TABLE public.tournaments ADD COLUMN tiebreaker_rule text NOT NULL DEFAULT 'head_to_head';

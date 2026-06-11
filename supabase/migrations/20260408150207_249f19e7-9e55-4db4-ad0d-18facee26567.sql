@@ -1,0 +1,1 @@
+ALTER TABLE public.playoff_matches ADD COLUMN scheduled_time text DEFAULT NULL;

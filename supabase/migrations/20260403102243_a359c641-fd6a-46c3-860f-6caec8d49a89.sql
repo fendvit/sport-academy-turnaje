@@ -1,0 +1,1 @@
+ALTER TABLE public.playoff_matches ADD COLUMN active boolean NOT NULL DEFAULT false;

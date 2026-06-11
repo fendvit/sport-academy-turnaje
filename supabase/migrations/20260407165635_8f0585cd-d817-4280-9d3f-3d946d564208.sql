@@ -1,0 +1,1 @@
+CREATE POLICY "Public update teams" ON public.teams FOR UPDATE TO public USING (true) WITH CHECK (true);

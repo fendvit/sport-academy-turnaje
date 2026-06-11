@@ -1,0 +1,1 @@
+ALTER TABLE public.tournaments ADD COLUMN archived boolean NOT NULL DEFAULT false;

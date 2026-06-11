@@ -1,0 +1,1 @@
+ALTER TABLE public.matches ADD COLUMN scheduled_time text DEFAULT null;
