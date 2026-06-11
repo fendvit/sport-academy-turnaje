@@ -65,7 +65,7 @@ export default function PublicDashboard() {
     );
   }
 
-  const categories = tournaments.map((t) => ({ id: t.id, name: t.name, category: t.category }));
+  const categories = tournaments.filter(t => !t.archived).map((t) => ({ id: t.id, name: t.name, category: t.category }));
   const showSwitcher = categories.length > 1;
 
   const winnerId = tournament ? getWinner(tournament) : null;
