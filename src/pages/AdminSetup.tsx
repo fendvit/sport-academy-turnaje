@@ -81,42 +81,41 @@ export default function AdminSetup() {
       assignedTeams = assignTeamsToGroups(teams, groups);
     }
     
-    const rawMatches = generateAllMatches(assignedTeams, groups, fieldCount, roundCount);
-    const matches = assignMatchTimes(rawMatches, startTime, matchDuration, fieldCount, breakDuration);
-
-    const tournament: Tournament = {
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      date,
-      fieldCount,
-      password: password.trim(),
-      phase: 'group',
-      category: category.trim(),
-      teams: assignedTeams,
-      groups,
-      matches,
-      playoffMatches: [],
-      matchDurationMinutes: matchDuration,
-      breakDurationMinutes: breakDuration,
-      startTime,
-      roundCount,
-      playoffStartTime: playoffStartTime || null,
-      archived: false,
-      tiebreakerRule,
-      playoffFormat,
-      playoffConsolationMatches,
-      playoffMatchDurationMinutes: typeof playoffMatchDuration === 'number' ? playoffMatchDuration : null,
-    };
-
     try {
+      const rawMatches = generateAllMatches(assignedTeams, groups, fieldCount, roundCount);
+      const matches = assignMatchTimes(rawMatches, startTime, matchDuration, fieldCount, breakDuration);
+
+      const tournament: Tournament = {
+        id: crypto.randomUUID(),
+        name: name.trim(),
+        date,
+        fieldCount,
+        password: password.trim(),
+        phase: 'group',
+        category: category.trim(),
+        teams: assignedTeams,
+        groups,
+        matches,
+        playoffMatches: [],
+        matchDurationMinutes: matchDuration,
+        breakDurationMinutes: breakDuration,
+        startTime,
+        roundCount,
+        playoffStartTime: playoffStartTime || null,
+        archived: false,
+        tiebreakerRule,
+        playoffFormat,
+        playoffConsolationMatches,
+        playoffMatchDurationMinutes: typeof playoffMatchDuration === 'number' ? playoffMatchDuration : null,
+      };
       await saveTournament(tournament);
       sessionStorage.setItem('florbal_admin', 'true');
       setSaving(false);
       navigate('/admin/dashboard');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error in handleCreate:', err);
       setSaving(false);
-      alert('Došlo k chybě při vytváření turnaje. Zkontrolujte prosím připojení a zkuste to znovu.');
+      alert(err.message || 'Došlo k chybě při vytváření turnaje. Zkontrolujte prosím připojení a zkuste to znovu.');
     }
   };
 
