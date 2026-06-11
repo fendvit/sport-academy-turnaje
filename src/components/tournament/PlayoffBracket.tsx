@@ -345,7 +345,7 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
                 <div className="flex flex-wrap gap-6">
                   {consolations.map((m, i) => (
                     <div key={m.id} className="w-72 shrink-0">
-                      {renderMatchCard({ ...m, label: `Zápas ${i + 1}` })}
+                      {renderMatchCard({ ...m, label: `Playdown ${i + 1}` })}
                     </div>
                   ))}
                 </div>

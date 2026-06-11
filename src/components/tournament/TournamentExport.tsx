@@ -52,19 +52,27 @@ export default function TournamentExport({ tournament, players }: Props) {
   const hasPlayoff = tournament.playoffMatches.length > 0;
   const sortedMatches = [...tournament.matches].sort((a, b) => a.order - b.order);
 
-  // Generate placeholder playoff schedule if playoff hasn't started yet
-  const playoffForSchedule: PlayoffMatch[] = hasPlayoff
-    ? [...tournament.playoffMatches]
-    : getPlayoffPreview(tournament);
+  // Pre-process playoff labels to rename consolations to Playdown
+  let consIndex = 1;
+  const playoffWithLabels = (hasPlayoff ? [...tournament.playoffMatches] : getPlayoffPreview(tournament))
+    .map(m => {
+      const isConsolation = m.round !== 10 && m.round !== 1 && m.round !== 4 && 
+        !(m.round === 2 && m.position === 1) && 
+        !(m.round === 3);
+      if (isConsolation) {
+        return { ...m, label: `Playdown ${consIndex++}` };
+      }
+      return m;
+    });
 
   // Sort: preliminary first, then descending round (least important first, final last)
-  const sortedPlayoffForSchedule = [...playoffForSchedule].sort((a, b) => {
+  const sortedPlayoffForSchedule = [...playoffWithLabels].sort((a, b) => {
     if (a.round === 10 && b.round !== 10) return -1;
     if (a.round !== 10 && b.round === 10) return 1;
     return b.round - a.round;
   });
-  const preliminary = playoffForSchedule.filter(m => m.round === 10);
-  const placements = playoffForSchedule.filter(m => m.round !== 10).sort((a, b) => b.round - a.round);
+  const preliminary = playoffWithLabels.filter(m => m.round === 10);
+  const placements = playoffWithLabels.filter(m => m.round !== 10).sort((a, b) => b.round - a.round);
 
   const headerBlock = (
     <div style={{ textAlign: 'center', marginBottom: 24 }}>
