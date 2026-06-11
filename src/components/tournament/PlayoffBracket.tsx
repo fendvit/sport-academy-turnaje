@@ -245,8 +245,8 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
 
   const semifinals = rawSemifinals;
 
-  const Column = ({ children }: { children: React.ReactNode }) => (
-    <div className="flex flex-col w-72 shrink-0 py-4">
+  const Column = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+    <div className={`flex flex-col w-72 shrink-0 py-4 ${className}`}>
       {children}
     </div>
   );
@@ -276,7 +276,7 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
       </CardHeader>
       <CardContent className="p-0">
         {playoffMatches.length > 0 ? (
-          <div className="overflow-x-auto pb-8 pt-4 custom-scrollbar">
+          <div className="overflow-x-auto pb-24 pt-4 custom-scrollbar">
             {isPreview && (
               <div className="max-w-md mx-auto rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30 p-3 text-center mb-6 mt-4">
                 <p className="text-xs text-muted-foreground">
@@ -318,31 +318,34 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
               )}
 
               {(finals.length > 0 || thirdPlace.length > 0) && (
-                <Column>
-                  {finals.map(m => (
-                    <Node key={m.id} connector={semifinals.length > 0}>
-                      {renderMatchCard(m)}
-                    </Node>
-                  ))}
-                  {thirdPlace.map(m => (
-                    <Node key={m.id}>
-                      <div className="mt-8 relative">
-                        <div className="absolute -left-10 top-1/2 w-10 border-t-2 border-dashed border-muted-foreground/20" />
+                <Column className="relative">
+                  <div className="flex-1 flex flex-col">
+                    {finals.map(m => (
+                      <Node key={m.id} connector={semifinals.length > 0}>
                         {renderMatchCard(m)}
-                      </div>
-                    </Node>
-                  ))}
+                      </Node>
+                    ))}
+                  </div>
+                  {thirdPlace.length > 0 && (
+                    <div className="absolute -bottom-12 left-0 w-full">
+                      {thirdPlace.map(m => (
+                        <div key={m.id}>
+                          {renderMatchCard(m)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </Column>
               )}
             </div>
 
             {consolations.length > 0 && (
               <div className="mt-12 px-8 pt-8 border-t border-dashed border-border/50">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">Zápasy o umístění</h3>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">Playdown</h3>
                 <div className="flex flex-wrap gap-6">
-                  {consolations.map(m => (
+                  {consolations.map((m, i) => (
                     <div key={m.id} className="w-72 shrink-0">
-                      {renderMatchCard(m)}
+                      {renderMatchCard({ ...m, label: `Zápas ${i + 1}` })}
                     </div>
                   ))}
                 </div>
