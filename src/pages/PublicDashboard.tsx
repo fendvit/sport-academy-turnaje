@@ -223,9 +223,9 @@ export default function PublicDashboard() {
 
             <TabsContent value="playoff" className="mt-4">
               {hasPlayoff ? (
-                <PlayoffBracket playoffMatches={tournament.playoffMatches} teams={tournament.teams} isAdmin={false} />
+                <PlayoffBracket playoffMatches={tournament.playoffMatches} teams={tournament.teams} isAdmin={false} playoffFormat={tournament.playoffFormat} />
               ) : (
-                <PlayoffBracket playoffMatches={getPlayoffPreview(tournament)} teams={tournament.teams} isAdmin={false} isPreview />
+                <PlayoffBracket playoffMatches={getPlayoffPreview(tournament)} teams={tournament.teams} isAdmin={false} isPreview playoffFormat={tournament.playoffFormat} />
               )}
             </TabsContent>
 

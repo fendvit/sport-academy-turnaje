@@ -108,10 +108,16 @@ export default function AdminSetup() {
       playoffMatchDurationMinutes: typeof playoffMatchDuration === 'number' ? playoffMatchDuration : null,
     };
 
-    await saveTournament(tournament);
-    sessionStorage.setItem('florbal_admin', 'true');
-    setSaving(false);
-    navigate('/admin/dashboard');
+    try {
+      await saveTournament(tournament);
+      sessionStorage.setItem('florbal_admin', 'true');
+      setSaving(false);
+      navigate('/admin/dashboard');
+    } catch (err) {
+      console.error('Error in handleCreate:', err);
+      setSaving(false);
+      alert('Došlo k chybě při vytváření turnaje. Zkontrolujte prosím připojení a zkuste to znovu.');
+    }
   };
 
   const teamsPerGroup = Math.ceil(teamNames.length / groupCount);

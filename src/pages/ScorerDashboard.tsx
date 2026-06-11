@@ -127,6 +127,7 @@ export default function ScorerDashboard() {
                 onStartPlayoffMatch={(id) => startPlayoffMatch(id)}
                 onReopenMatch={(id) => reopenPlayoffMatch(id)}
                 isAdmin
+                playoffFormat={tournament.playoffFormat}
               />
             </TabsContent>
           )}

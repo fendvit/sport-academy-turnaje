@@ -290,33 +290,44 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
       })
       .select().single();
 
-    if (tErr) { console.error('Tournament insert error:', tErr); return; }
-
-    if (t.groups.length > 0) {
-      await supabase.from('groups').insert(
-        t.groups.map(g => ({ id: g.id, tournament_id: t.id, name: g.name }))
-      );
+    if (tErr) { 
+      console.error('Tournament insert error:', tErr); 
+      throw tErr; 
     }
 
-    if (t.teams.length > 0) {
-      await supabase.from('teams').insert(
-        t.teams.map(tm => ({ id: tm.id, tournament_id: t.id, name: tm.name, group_id: tm.groupId }))
-      );
-    }
+    try {
+      if (t.groups.length > 0) {
+        const { error: gErr } = await supabase.from('groups').insert(
+          t.groups.map(g => ({ id: g.id, tournament_id: t.id, name: g.name }))
+        );
+        if (gErr) throw gErr;
+      }
 
-    if (t.matches.length > 0) {
-      await supabase.from('matches').insert(
-        t.matches.map(m => ({
-          id: m.id, tournament_id: t.id, group_id: m.groupId,
-          home_team_id: m.homeTeamId, away_team_id: m.awayTeamId,
-          home_score: m.homeScore, away_score: m.awayScore,
-          field: m.field, match_order: m.order, played: m.played,
-          scheduled_time: m.scheduledTime, active: m.active,
-        }))
-      );
-    }
+      if (t.teams.length > 0) {
+        const { error: tmErr } = await supabase.from('teams').insert(
+          t.teams.map(tm => ({ id: tm.id, tournament_id: t.id, name: tm.name, group_id: tm.groupId }))
+        );
+        if (tmErr) throw tmErr;
+      }
 
-    setSelectedId(t.id);
+      if (t.matches.length > 0) {
+        const { error: mErr } = await supabase.from('matches').insert(
+          t.matches.map(m => ({
+            id: m.id, tournament_id: t.id, group_id: m.groupId,
+            home_team_id: m.homeTeamId, away_team_id: m.awayTeamId,
+            home_score: m.homeScore, away_score: m.awayScore,
+            field: m.field, match_order: m.order, played: m.played,
+            scheduled_time: m.scheduledTime, active: m.active,
+          }))
+        );
+        if (mErr) throw mErr;
+      }
+
+      setSelectedId(t.id);
+    } catch (err) {
+      console.error('Error saving tournament related data:', err);
+      throw err;
+    }
   }, []);
 
   // Finalize match: set played=true, deactivate, activate next on same field
@@ -788,10 +799,10 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
   const login = useCallback(async (password: string): Promise<boolean> => {
     if (!tournament) return false;
     try {
-      const { data, error } = await supabase.functions.invoke('verify-tournament-password', {
-        body: { tournament_id: tournament.id, password },
+      const { data, error } = await supabase.rpc('verify_tournament_password', {
+        _tournament_id: tournament.id, _password: password,
       });
-      if (error || !data?.valid) return false;
+      if (error || !data) return false;
       setIsAdmin(true);
       sessionStorage.setItem(ADMIN_KEY, 'true');
       return true;

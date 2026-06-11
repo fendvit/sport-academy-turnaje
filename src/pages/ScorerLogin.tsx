@@ -38,12 +38,12 @@ export default function ScorerLogin() {
     setError('');
     
     try {
-      // Verify PIN server-side via edge function
-      const { data, error: fnError } = await supabase.functions.invoke('verify-scorer-pin', {
-        body: { token: token!, pin },
+      // Verify PIN server-side via RPC
+      const { data, error: fnError } = await supabase.rpc('verify_scorer_pin', {
+        _token: token!, _pin: pin,
       });
 
-      if (fnError || !data?.valid) {
+      if (fnError || !data) {
         setError('Nesprávný PIN');
         return;
       }

@@ -208,6 +208,7 @@ export default function AdminDashboard() {
                 onStartPlayoffMatch={(id) => startPlayoffMatch(id)}
                 onReopenMatch={(id) => reopenPlayoffMatch(id)}
                 isAdmin
+                playoffFormat={tournament.playoffFormat}
               />
             ) : (
               <PlayoffBracket
@@ -215,6 +216,7 @@ export default function AdminDashboard() {
                 teams={tournament.teams}
                 isAdmin={false}
                 isPreview
+                playoffFormat={tournament.playoffFormat}
               />
             )}
           </TabsContent>
