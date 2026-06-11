@@ -859,13 +859,30 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
     const keptTeamIds = new Set(newTeams.map((t) => t.id));
     const removedTeamIds = tournament.teams.map((t) => t.id).filter((id) => !keptTeamIds.has(id));
 
+    // 1. Delete matches
     await supabase.from('matches').delete().eq('tournament_id', tid);
     await supabase.from('playoff_matches').delete().eq('tournament_id', tid);
+
+    // 2. Insert new groups
+    const { error: gErr } = await supabase.from('groups').insert(newGroups.map((g) => ({ id: g.id, tournament_id: tid, name: g.name })));
+    if (gErr) console.error('Error inserting groups:', gErr);
+
+    // 3. Upsert teams (updates group_id for kept teams, inserts new teams)
+    const { error: tErr } = await supabase.from('teams').upsert(newTeams.map((tm) => ({
+      id: tm.id, tournament_id: tid, name: tm.name, group_id: tm.groupId,
+    })));
+    if (tErr) console.error('Error upserting teams:', tErr);
+
+    // 4. Delete old groups
+    const newGroupIds = newGroups.map(g => g.id);
+    const { error: dgErr } = await supabase.from('groups').delete().eq('tournament_id', tid).not('id', 'in', `(${newGroupIds.join(',')})`);
+    if (dgErr) console.error('Error deleting old groups:', dgErr);
+
+    // 5. Delete removed teams and their players
     if (removedTeamIds.length > 0) {
       await supabase.from('players').delete().in('team_id', removedTeamIds);
+      await supabase.from('teams').delete().in('id', removedTeamIds);
     }
-    await supabase.from('teams').delete().eq('tournament_id', tid);
-    await supabase.from('groups').delete().eq('tournament_id', tid);
 
     await supabase.from('tournaments').update({
       name: input.name.trim(),
@@ -888,18 +905,16 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
       await supabase.from('tournaments').update({ password: input.password.trim() }).eq('id', tid);
     }
 
-    await supabase.from('groups').insert(newGroups.map((g) => ({ id: g.id, tournament_id: tid, name: g.name })));
-    await supabase.from('teams').insert(newTeams.map((tm) => ({
-      id: tm.id, tournament_id: tid, name: tm.name, group_id: tm.groupId,
-    })));
+    // 6. Insert new matches
     if (newMatches.length > 0) {
-      await supabase.from('matches').insert(newMatches.map((m) => ({
+      const { error: mErr } = await supabase.from('matches').insert(newMatches.map((m) => ({
         id: m.id, tournament_id: tid, group_id: m.groupId,
         home_team_id: m.homeTeamId, away_team_id: m.awayTeamId,
         home_score: null, away_score: null,
         field: m.field, match_order: m.order, played: false,
         scheduled_time: m.scheduledTime, active: false,
       })));
+      if (mErr) console.error('Error inserting matches:', mErr);
     }
 
     await loadTournamentList();
