@@ -13,6 +13,7 @@ import ScorerLogin from "./pages/ScorerLogin";
 import ScorerDashboard from "./pages/ScorerDashboard";
 import NotFound from "./pages/NotFound";
 import GlobalAdminAuth from "./components/GlobalAdminAuth";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
       <Sonner />
       <TournamentProvider>
         <BrowserRouter>
+          <PWAInstallPrompt />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/admin" element={<GlobalAdminAuth />}>
