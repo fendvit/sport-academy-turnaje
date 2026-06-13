@@ -33,6 +33,7 @@ export default function AdminSetup() {
   const [playoffFormat, setPlayoffFormat] = useState<PlayoffFormat>('placement');
   const [playoffConsolationMatches, setPlayoffConsolationMatches] = useState(false);
   const [playoffMatchDuration, setPlayoffMatchDuration] = useState<number | ''>('');
+  const [playoffBreakDuration, setPlayoffBreakDuration] = useState<number | ''>('');
   const [saving, setSaving] = useState(false);
 
   const addTeam = () => {
@@ -107,6 +108,7 @@ export default function AdminSetup() {
         playoffFormat,
         playoffConsolationMatches,
         playoffMatchDurationMinutes: typeof playoffMatchDuration === 'number' ? playoffMatchDuration : null,
+        playoffBreakDurationMinutes: typeof playoffBreakDuration === 'number' ? playoffBreakDuration : null,
       };
       await saveTournament(tournament);
       sessionStorage.setItem('florbal_admin', 'true');
@@ -282,6 +284,21 @@ export default function AdminSetup() {
               />
               <p className="text-xs text-muted-foreground">
                 Nechte prázdné — použije se délka základního zápasu.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Přestávka v playoff (min)</Label>
+              <Input
+                type="number"
+                min={0}
+                max={30}
+                value={playoffBreakDuration}
+                placeholder={`Stejné jako základní (${breakDuration})`}
+                onChange={e => setPlayoffBreakDuration(e.target.value === '' ? '' : Number(e.target.value))}
+              />
+              <p className="text-xs text-muted-foreground">
+                Nechte prázdné — použije se hodnota ze základní části.
               </p>
             </div>
 
