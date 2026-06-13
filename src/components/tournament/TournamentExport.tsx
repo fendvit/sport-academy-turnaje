@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Tournament, Player, PlayoffMatch } from '@/types/tournament';
 
 import { calculateStandings, getTeamName, getPlayoffPreview } from '@/utils/tournament';
+import PlayoffBracket from './PlayoffBracket';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import {
@@ -104,40 +105,7 @@ export default function TournamentExport({ tournament, players }: Props) {
     </p>
   );
 
-  const renderPlayoffMatch = (match: typeof tournament.playoffMatches[0]) => {
-    const homeName = getTeamName(tournament.teams, match.homeTeamId);
-    const awayName = getTeamName(tournament.teams, match.awayTeamId);
-    const mWinnerId = match.played && match.homeScore !== null && match.awayScore !== null
-      ? (match.homeScore > match.awayScore ? match.homeTeamId : match.awayTeamId) : null;
-    const label = match.label || (match.round === 10 ? 'Předkolo' : `O ${(match.round - 1) * 2 + 1}.-${(match.round - 1) * 2 + 2}. místo`);
 
-    return (
-      <div key={match.id} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 8, background: '#fff', marginBottom: 8 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
-          <span>{label}</span>
-          {match.field > 0 && <span style={{ color: '#999', fontWeight: 400 }}>Hřiště {match.field}</span>}
-        </div>
-        <div style={{
-          padding: '4px 8px', borderRadius: 4, marginBottom: 2,
-          background: mWinnerId === match.homeTeamId ? '#e8f5e9' : '#f9f9f9',
-          fontWeight: mWinnerId === match.homeTeamId ? 700 : 400,
-          display: 'flex', justifyContent: 'space-between', fontSize: 13
-        }}>
-          <span>{homeName}</span>
-          {match.played && <span style={{ fontWeight: 700 }}>{match.homeScore}</span>}
-        </div>
-        <div style={{
-          padding: '4px 8px', borderRadius: 4,
-          background: mWinnerId === match.awayTeamId ? '#e8f5e9' : '#f9f9f9',
-          fontWeight: mWinnerId === match.awayTeamId ? 700 : 400,
-          display: 'flex', justifyContent: 'space-between', fontSize: 13
-        }}>
-          <span>{awayName}</span>
-          {match.played && <span style={{ fontWeight: 700 }}>{match.awayScore}</span>}
-        </div>
-      </div>
-    );
-  };
 
   const groupNameMap: Record<string, string> = {};
   tournament.groups.forEach(g => { groupNameMap[g.id] = g.name; });
@@ -157,17 +125,15 @@ export default function TournamentExport({ tournament, players }: Props) {
           <DropdownMenuItem onClick={() => doExport('schedule')}>
             Rozpis zápasů
           </DropdownMenuItem>
-          {hasPlayoff && (
-            <DropdownMenuItem onClick={() => doExport('playoff')}>
-              Playoff + výherce
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem onClick={() => doExport('playoff')}>
+            Playoff (Pavouk)
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       {/* Hidden export content */}
       <div className="fixed left-[-9999px] top-0">
-        <div ref={ref} style={{ width: 800, padding: 40, fontFamily: 'Inter, sans-serif', background: '#fff', color: '#283877' }}>
+        <div ref={ref} style={{ width: mode === 'playoff' ? 'max-content' : 800, minWidth: 800, padding: 40, fontFamily: 'Inter, sans-serif', background: '#fff', color: '#283877' }}>
           {headerBlock}
           {(mode === 'standings' || mode === 'playoff') && podiumBlock}
 
@@ -309,14 +275,14 @@ export default function TournamentExport({ tournament, players }: Props) {
           )}
 
           {mode === 'playoff' && (
-            <div style={{ maxWidth: 400, margin: '0 auto' }}>
-              {preliminary.length > 0 && (
-                <div style={{ marginBottom: 16 }}>
-                  <p style={{ fontSize: 12, fontWeight: 600, color: '#999', marginBottom: 4 }}>PŘEDKOLO</p>
-                  {preliminary.map(m => renderPlayoffMatch(m))}
-                </div>
-              )}
-              {placements.map(m => renderPlayoffMatch(m))}
+            <div style={{ minWidth: 1000, margin: '0 auto', background: '#fff' }}>
+              <PlayoffBracket 
+                playoffMatches={playoffWithLabels}
+                teams={tournament.teams}
+                isAdmin={false}
+                isPreview={!hasPlayoff}
+                playoffFormat={tournament.playoffFormat}
+              />
             </div>
           )}
 
