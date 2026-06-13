@@ -539,10 +539,11 @@ export function generateBracketPlayoff(tournament: Tournament, seedsOverride?: (
     if (tournament.playoffConsolationMatches) {
       if (N >= 12) {
         add(12, 0, null, null, 'Skupina o umístění finále');
+      } else {
+        add(5, 0, null, null, 'O 5.-8. místo (1)');
+        add(5, 1, null, null, 'O 5.-8. místo (2)');
+        nextSlot();
       }
-      add(5, 0, null, null, 'O 5.-8. místo (1)');
-      add(5, 1, null, null, 'O 5.-8. místo (2)');
-      nextSlot();
     }
 
     add(3, 0, null, null, 'Semifinále 1');
@@ -550,7 +551,7 @@ export function generateBracketPlayoff(tournament: Tournament, seedsOverride?: (
 
     nextSlot();
 
-    if (tournament.playoffConsolationMatches) {
+    if (tournament.playoffConsolationMatches && N < 12) {
       add(6, 0, null, null, 'Skupina o umístění finále');
     }
 
