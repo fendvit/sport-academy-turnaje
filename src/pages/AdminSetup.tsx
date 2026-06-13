@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { generateGroups, assignTeamsToGroups, generateAllMatches, assignMatchTimes } from '@/utils/tournament';
 import { Tournament, Team, TiebreakerRule, PlayoffFormat } from '@/types/tournament';
 import { Trash2, Plus, ArrowRight } from 'lucide-react';
