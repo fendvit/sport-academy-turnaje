@@ -346,13 +346,13 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
 
             {(consolations.length > 0 || playdownFinals.length > 0) && (
               <div className="mt-12 px-8 pt-8 border-t border-dashed border-border/50">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">Playdown</h3>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">Skupina o umístění</h3>
                 <div className="flex gap-8 items-center overflow-x-auto pb-4">
                   {consolations.length > 0 && (
                     <div className="flex flex-col gap-6">
                       {consolations.map((m, i) => (
                         <div key={m.id} className="w-72 shrink-0">
-                          {renderMatchCard({ ...m, label: `Playdown ${i + 1}` })}
+                          {renderMatchCard({ ...m, label: `Skupina o umístění ${i + 1}` })}
                         </div>
                       ))}
                     </div>
@@ -368,7 +368,7 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
                     <div className="flex flex-col gap-6 justify-center">
                       {playdownFinals.map((m) => (
                         <div key={m.id} className="w-72 shrink-0">
-                          {renderMatchCard({ ...m, label: 'Finále Playdown' })}
+                          {renderMatchCard({ ...m, label: 'Skupina o umístění finále' })}
                         </div>
                       ))}
                     </div>

@@ -52,15 +52,15 @@ export default function TournamentExport({ tournament, players }: Props) {
   const hasPlayoff = tournament.playoffMatches.length > 0;
   const sortedMatches = [...tournament.matches].sort((a, b) => a.order - b.order);
 
-  // Pre-process playoff labels to rename consolations to Playdown
+  // Pre-process playoff labels to rename consolations to Skupina o umístění
   let consIndex = 1;
   const playoffWithLabels = (hasPlayoff ? [...tournament.playoffMatches] : getPlayoffPreview(tournament))
     .map(m => {
       if (m.round === 12 || m.round === 6) {
-        return { ...m, label: 'Finále Playdown' };
+        return { ...m, label: 'Skupina o umístění finále' };
       }
       if (m.round === 11 || m.round === 5) {
-        return { ...m, label: `Playdown ${consIndex++}` };
+        return { ...m, label: `Skupina o umístění ${consIndex++}` };
       }
       return m;
     });

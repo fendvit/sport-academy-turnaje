@@ -530,7 +530,7 @@ export function generateBracketPlayoff(tournament: Tournament, seedsOverride?: (
     nextSlot();
 
     if (tournament.playoffConsolationMatches) {
-      add(12, 0, null, null, 'Finále Playdown');
+      add(12, 0, null, null, 'Skupina o umístění finále');
     }
 
     add(3, 0, null, null, 'Semifinále 1');
@@ -560,7 +560,7 @@ export function generateBracketPlayoff(tournament: Tournament, seedsOverride?: (
     nextSlot();
 
     if (tournament.playoffConsolationMatches) {
-      add(6, 0, null, null, 'Finále Playdown');
+      add(6, 0, null, null, 'Skupina o umístění finále');
     }
 
     add(2, 0, null, null, 'O 3. místo');
