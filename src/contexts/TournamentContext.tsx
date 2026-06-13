@@ -402,8 +402,13 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
       };
 
       if (finishedMatch.round === 10) {
-        // Pre-round → QF at same position (winner becomes away)
-        await setSlot(4, finishedMatch.position, false, winnerId);
+        // Pre-round → QF: standard seeding crossing (0->3, 1->2, 2->1, 3->0)
+        // P0 (5v12) feeds QF3 (4th seed)
+        // P1 (6v11) feeds QF2 (3rd seed)
+        // P2 (7v10) feeds QF1 (2nd seed)
+        // P3 (8v9) feeds QF0 (1st seed)
+        const qfPosition = 3 - finishedMatch.position;
+        await setSlot(4, qfPosition, false, winnerId);
         // Consolation for pre-round losers (round 11)
         if (tournament.playoffConsolationMatches) {
            if (finishedMatch.position === 0) await setSlot(11, 0, true, loserId);
