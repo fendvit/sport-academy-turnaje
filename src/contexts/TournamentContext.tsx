@@ -747,8 +747,8 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
       .eq('id', tournament.id);
     // If playoff matches exist, recalculate their times
     if (tournament.playoffMatches.length > 0) {
-      const matchDuration = 11;
-      const breakDuration = 3;
+      const matchDuration = tournament.playoffMatchDurationMinutes ?? tournament.matchDurationMinutes;
+      const breakDuration = tournament.playoffBreakDurationMinutes ?? tournament.breakDurationMinutes;
       const slotDuration = matchDuration + breakDuration;
       const { fieldCount } = tournament;
 
