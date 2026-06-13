@@ -477,7 +477,7 @@ export default function TournamentSettingsDialog({ tournament }: Props) {
           <div className="flex flex-col gap-2 pt-4 border-t">
             {!isValid && (
               <p className="text-xs text-destructive text-center mb-2">
-                Nelze uložit. Zkontrolujte, zda má turnaj název a všechny týmy mají vyplněná jména.
+                Nelze uložit. Zkontrolujte, zda má turnaj název, kategorii a všechny týmy mají vyplněná jména.
               </p>
             )}
             <Button onClick={handleUpdateTimes} disabled={!isValid || updating || saving || resetting} size="lg" className="w-full">

@@ -18,6 +18,7 @@ export interface RegenerateInput {
   groupCount: number;
   playoffFormat: 'placement' | 'bracket';
   playoffMatchDurationMinutes: number | null;
+  playoffBreakDurationMinutes: number | null;
   playoffConsolationMatches: boolean;
   teams: { id: string | null; name: string; groupIndex: number | null }[];
 }
@@ -153,7 +154,7 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
   const loadTournamentList = useCallback(async () => {
     const { data } = await supabase
       .from('tournaments')
-      .select('id, name, date, created_at, phase, field_count, category, match_duration_minutes, break_duration_minutes, start_time, round_count, playoff_start_time, archived, tiebreaker_rule, playoff_format, playoff_match_duration_minutes, playoff_consolation_matches, assign_fields_by_group')
+      .select('id, name, date, created_at, phase, field_count, category, match_duration_minutes, break_duration_minutes, start_time, round_count, playoff_start_time, archived, tiebreaker_rule, playoff_format, playoff_match_duration_minutes, playoff_break_duration_minutes, playoff_consolation_matches, assign_fields_by_group')
       .order('created_at', { ascending: false });
 
     if (!data || data.length === 0) {
