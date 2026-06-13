@@ -27,16 +27,18 @@ export default function TournamentExport({ tournament, players }: Props) {
     setMode(exportMode);
     await new Promise(r => setTimeout(r, 100));
     if (!ref.current) return;
-    const html2canvas = (await import('html2canvas')).default;
-    const canvas = await html2canvas(ref.current, {
+    const { toPng } = await import('html-to-image');
+    const dataUrl = await toPng(ref.current, {
       backgroundColor: '#ffffff',
-      scale: 2,
-      useCORS: true,
+      pixelRatio: 2,
+      style: {
+        fontFamily: 'Inter, sans-serif'
+      }
     });
     const link = document.createElement('a');
     const suffixMap = { standings: 'tabulky', playoff: 'playoff', schedule: 'rozpis' };
     link.download = `${tournament.name.replace(/\s+/g, '_')}_${suffixMap[exportMode]}.png`;
-    link.href = canvas.toDataURL('image/png');
+    link.href = dataUrl;
     link.click();
   };
 
@@ -133,7 +135,7 @@ export default function TournamentExport({ tournament, players }: Props) {
 
       {/* Hidden export content */}
       <div className="fixed left-[-9999px] top-0">
-        <div ref={ref} style={{ width: mode === 'playoff' ? 'max-content' : 800, minWidth: 800, padding: 40, fontFamily: 'Arial, Helvetica, sans-serif', background: '#fff', color: '#283877' }}>
+        <div ref={ref} style={{ width: mode === 'playoff' ? 'max-content' : 800, minWidth: 800, padding: 40, fontFamily: 'Inter, sans-serif', background: '#fff', color: '#283877' }}>
           {headerBlock}
           {(mode === 'standings' || mode === 'playoff') && podiumBlock}
 
