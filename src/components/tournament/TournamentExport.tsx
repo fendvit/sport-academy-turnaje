@@ -281,6 +281,7 @@ export default function TournamentExport({ tournament, players }: Props) {
                 teams={tournament.teams}
                 isAdmin={false}
                 isPreview={!hasPlayoff}
+                isExport={true}
                 playoffFormat={tournament.playoffFormat}
               />
             </div>

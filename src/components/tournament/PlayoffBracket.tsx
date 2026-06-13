@@ -16,10 +16,11 @@ interface Props {
   onReopenMatch?: (matchId: string) => void;
   isAdmin: boolean;
   isPreview?: boolean;
+  isExport?: boolean;
   playoffFormat?: PlayoffFormat;
 }
 
-export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, onUpdateMatchScore, onStartPlayoffMatch, onReopenMatch, isAdmin, isPreview = false, playoffFormat = 'placement' }: Props) {
+export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, onUpdateMatchScore, onStartPlayoffMatch, onReopenMatch, isAdmin, isPreview = false, isExport = false, playoffFormat = 'placement' }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [homeScore, setHomeScore] = useState('');
   const [awayScore, setAwayScore] = useState('');
@@ -260,7 +261,7 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
     <div className="flex-1 flex flex-col justify-center py-3 relative">
       {connector && (
         <>
-          <div className="absolute -left-10 top-1/4 bottom-1/4 w-5 border-l-2 border-y-2 border-muted-foreground/30 rounded-l-md" />
+          <div className="absolute -left-10 top-1/4 bottom-1/4 w-5 border-r-2 border-y-2 border-muted-foreground/30 rounded-r-md" />
           <div className="absolute -left-5 top-1/2 w-5 border-t-2 border-muted-foreground/30" />
         </>
       )}
@@ -272,7 +273,7 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
   );
 
   return (
-    <Card className="overflow-hidden">
+    <Card className={isExport ? "border-none shadow-none" : "overflow-hidden"}>
       <CardHeader className="pb-3 border-b bg-muted/10">
         <CardTitle className="flex items-center gap-2 text-base">
           <Trophy className="h-4 w-4" />
@@ -281,7 +282,7 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
       </CardHeader>
       <CardContent className="p-0">
         {playoffMatches.length > 0 ? (
-          <div className="overflow-x-auto pb-24 pt-4 custom-scrollbar">
+          <div className={`pb-24 pt-4 ${isExport ? "" : "overflow-x-auto custom-scrollbar"}`}>
             {isPreview && (
               <div className="max-w-md mx-auto rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30 p-3 text-center mb-6 mt-4">
                 <p className="text-xs text-muted-foreground">
@@ -304,8 +305,7 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
               {quarterfinals.length > 0 && (
                 <Column>
                   {quarterfinals.map(m => (
-                    <Node key={m.id} rightConnector={semifinals.length > 0} connector={preliminary.length > 0 ? false : false /* straight lines already handled by rightConnector of preliminary */}>
-                      {preliminary.length > 0 && <div className="absolute -left-10 top-1/2 w-10 border-t-2 border-muted-foreground/30" />}
+                    <Node key={m.id} rightConnector={false} connector={false}>
                       {renderMatchCard(m)}
                     </Node>
                   ))}
@@ -315,7 +315,7 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
               {semifinals.length > 0 && (
                 <Column>
                   {semifinals.map(m => (
-                    <Node key={m.id} connector={quarterfinals.length > 0} rightConnector={finals.length > 0}>
+                    <Node key={m.id} connector={quarterfinals.length > 0} rightConnector={false}>
                       {renderMatchCard(m)}
                     </Node>
                   ))}
