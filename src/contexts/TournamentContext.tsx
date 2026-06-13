@@ -56,6 +56,7 @@ interface TournamentContextType {
   shiftPlayoffTimes: (newPlayoffStartTime: string) => Promise<void>;
   archiveTournament: (id: string, archived: boolean) => Promise<void>;
   regenerateTournament: (input: RegenerateInput) => Promise<void>;
+  updateSettingsAndTimes: (input: RegenerateInput) => Promise<void>;
   resetTournament: () => Promise<void>;
   isAdmin: boolean;
   login: (password: string) => Promise<boolean>;
@@ -956,6 +957,91 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
     await loadTournamentDetail(tid);
   }, [tournament, loadTournamentList, loadTournamentDetail]);
 
+  const updateSettingsAndTimes = useCallback(async (input: RegenerateInput) => {
+    if (!tournament) return;
+    const tid = tournament.id;
+
+    // 1. Uložit nastavení turnaje
+    await supabase.from('tournaments').update({
+      name: input.name.trim(), category: input.category.trim(), date: input.date,
+      field_count: input.fieldCount, start_time: input.startTime,
+      match_duration_minutes: input.matchDurationMinutes,
+      break_duration_minutes: input.breakDurationMinutes,
+      round_count: input.roundCount,
+      playoff_start_time: input.playoffStartTime || null,
+      tiebreaker_rule: input.tiebreakerRule,
+      playoff_format: input.playoffFormat,
+      playoff_match_duration_minutes: input.playoffMatchDurationMinutes,
+      playoff_break_duration_minutes: input.playoffBreakDurationMinutes,
+      playoff_consolation_matches: input.playoffConsolationMatches,
+    }).eq('id', tid);
+
+    if (input.password && input.password.trim()) {
+      await supabase.from('tournaments').update({ password: input.password.trim() }).eq('id', tid);
+    }
+
+    // 2. Upravit jména týmů, pokud se změnila
+    for (const teamInput of input.teams) {
+      if (teamInput.id) {
+        await supabase.from('teams').update({ name: teamInput.name.trim() }).eq('id', teamInput.id);
+      }
+    }
+
+    // 3. Přepočítat časy existujících zápasů ve skupině a aktualizovat
+    if (tournament.matches.length > 0) {
+      const updatedMatches = assignMatchTimes(
+        tournament.matches, 
+        input.startTime, 
+        input.matchDurationMinutes, 
+        input.fieldCount, 
+        input.breakDurationMinutes
+      );
+      
+      for (const m of updatedMatches) {
+        await supabase.from('matches').update({ scheduled_time: m.scheduledTime }).eq('id', m.id);
+      }
+    }
+
+    // 4. Přepočítat časy existujících zápasů v playoff
+    if (tournament.playoffMatches.length > 0) {
+      const matchDuration = input.playoffMatchDurationMinutes ?? input.matchDurationMinutes;
+      const breakDuration = input.playoffBreakDurationMinutes ?? input.breakDurationMinutes;
+      const slotDuration = matchDuration + breakDuration;
+
+      let playoffStartMinutes: number;
+      if (input.playoffStartTime) {
+        const [pH, pM] = input.playoffStartTime.split(':').map(Number);
+        playoffStartMinutes = pH * 60 + pM;
+      } else {
+        const sortedGroupMatches = [...tournament.matches].sort((a, b) => a.order - b.order);
+        const lastGroupMatch = sortedGroupMatches[sortedGroupMatches.length - 1];
+        const lastGroupSlot = lastGroupMatch ? Math.floor(lastGroupMatch.order / input.fieldCount) : -1;
+        const [sH, sM] = input.startTime.split(':').map(Number);
+        const groupSlotDur = input.matchDurationMinutes + input.breakDurationMinutes;
+        playoffStartMinutes = sH * 60 + sM + (lastGroupSlot + 1) * groupSlotDur;
+      }
+
+      // Sort matches: preliminary first, then descending round
+      const sorted = [...tournament.playoffMatches].sort((a, b) => {
+        if (a.round === 10 && b.round !== 10) return -1;
+        if (a.round !== 10 && b.round === 10) return 1;
+        return b.round - a.round;
+      });
+
+      for (let i = 0; i < sorted.length; i++) {
+        const slot = Math.floor(i / input.fieldCount);
+        const totalMinutes = playoffStartMinutes + slot * slotDuration;
+        const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
+        const m = (totalMinutes % 60).toString().padStart(2, '0');
+        const scheduledTime = `${h}:${m}`;
+        await supabase.from('playoff_matches').update({ scheduled_time: scheduledTime }).eq('id', sorted[i].id);
+      }
+    }
+
+    await loadTournamentList();
+    await loadTournamentDetail(tid);
+  }, [tournament, loadTournamentList, loadTournamentDetail]);
+
   const resetTournament = useCallback(async () => {
     if (!tournament) return;
     const tid = tournament.id;
@@ -997,7 +1083,7 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
       deleteTournament, deleteTeam, updateTeamTrainer, updateTeamName, reopenPlayoffMatch,
       addPlayer, removePlayer, importPlayersCSV,
       addScorer, removeScorer, reorderMatches, startTournament, updatePlayoffStartTime, shiftMatchTimes, shiftPlayoffTimes,
-      archiveTournament, regenerateTournament, resetTournament, isAdmin, login, logout
+      archiveTournament, regenerateTournament, updateSettingsAndTimes, resetTournament, isAdmin, login, logout
     }}>
       {children}
     </TournamentContext.Provider>

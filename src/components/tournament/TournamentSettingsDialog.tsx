@@ -21,10 +21,11 @@ interface Props {
 }
 
 export default function TournamentSettingsDialog({ tournament }: Props) {
-  const { regenerateTournament, resetTournament, shiftMatchTimes, shiftPlayoffTimes } = useTournament();
+  const { regenerateTournament, updateSettingsAndTimes, resetTournament, shiftMatchTimes, shiftPlayoffTimes } = useTournament();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [updating, setUpdating] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [shifting, setShifting] = useState(false);
   const [shiftStart, setShiftStart] = useState(tournament.startTime);
@@ -141,6 +142,36 @@ export default function TournamentSettingsDialog({ tournament }: Props) {
       toast({ title: 'Chyba', description: msg, variant: 'destructive' });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleUpdateTimes = async () => {
+    if (!isValid || updating) return;
+    setUpdating(true);
+    try {
+      const input: RegenerateInput = {
+        name, category, date, fieldCount,
+        password: password || undefined,
+        startTime, matchDurationMinutes: matchDuration,
+        breakDurationMinutes: breakDuration,
+        roundCount, playoffStartTime: playoffStartTime || null,
+        tiebreakerRule, groupCount,
+        playoffFormat,
+        playoffConsolationMatches,
+        playoffMatchDurationMinutes: typeof playoffMatchDuration === 'number' ? playoffMatchDuration : null,
+        playoffBreakDurationMinutes: typeof playoffBreakDuration === 'number' ? playoffBreakDuration : null,
+        assignFieldsByGroup,
+        teams: rows.map((r) => ({ id: r.id, name: r.name, groupIndex: r.groupIndex })),
+      };
+      await updateSettingsAndTimes(input);
+      toast({ title: 'Uloženo', description: 'Nastavení uloženo a časy byly přepočítány beze změny rozpisu.' });
+      setOpen(false);
+    } catch (e) {
+      console.error(e);
+      const msg = e instanceof Error ? e.message : 'Uložení se nezdařilo.';
+      toast({ title: 'Chyba', description: msg, variant: 'destructive' });
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -445,31 +476,56 @@ export default function TournamentSettingsDialog({ tournament }: Props) {
           </div>
 
           <div className="flex flex-col gap-2 pt-4 border-t">
-            <Button onClick={handleSave} disabled={!isValid || saving} size="lg">
+            <Button onClick={handleUpdateTimes} disabled={!isValid || updating || saving || resetting} size="lg" className="w-full">
               <Save className="mr-2 h-4 w-4" />
-              {saving ? 'Ukládám...' : 'Uložit a regenerovat'}
+              {updating ? 'Ukládám a přepočítávám...' : 'Uložit změny a aplikovat nové časy'}
             </Button>
 
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="lg" disabled={resetting}>
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Reset turnaje (vytvořit nový rozpis)
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Resetovat turnaj?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Smažou se všechny výsledky, playoff zápasy a rozpis se vygeneruje znovu z aktuálních týmů a nastavení. Týmy a hráči zůstanou zachováni. Tato akce je nevratná.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Zrušit</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleReset}>Resetovat</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <div className="flex gap-2">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="flex-1" disabled={!isValid || saving || updating || resetting}>
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Regenerovat rozpis
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Regenerovat celý rozpis?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Aktuální rozpis a <strong>všechny zadané výsledky budou smazány</strong> a vytvoří se nový rozpis podle aktuálního nastavení. Týmy a hráči zůstanou.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Zrušit</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleSave} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                      Regenerovat
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" className="flex-1" disabled={resetting || saving || updating}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Úplný reset turnaje
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Resetovat turnaj?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Smažou se všechny výsledky, playoff zápasy a rozpis se vygeneruje znovu z aktuálních týmů. Tato akce je nevratná.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Zrušit</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleReset}>Resetovat</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
         </div>
       </DialogContent>
