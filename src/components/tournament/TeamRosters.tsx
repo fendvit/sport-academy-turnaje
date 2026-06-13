@@ -15,10 +15,13 @@ interface Props {
   onImportCSV?: (teamId: string, players: { name: string; number: number | null }[]) => Promise<void>;
   onDeleteTeam?: (teamId: string) => Promise<void>;
   onUpdateTrainer?: (teamId: string, trainer: string) => Promise<void>;
+  onUpdateTeamName?: (teamId: string, name: string) => Promise<void>;
 }
 
-export default function TeamRosters({ teams, players, isAdmin, onAddPlayer, onRemovePlayer, onImportCSV, onDeleteTeam, onUpdateTrainer }: Props) {
+export default function TeamRosters({ teams, players, isAdmin, onAddPlayer, onRemovePlayer, onImportCSV, onDeleteTeam, onUpdateTrainer, onUpdateTeamName }: Props) {
   const [addingTeamId, setAddingTeamId] = useState<string | null>(null);
+  const [editingTeamNameId, setEditingTeamNameId] = useState<string | null>(null);
+  const [teamNameValue, setTeamNameValue] = useState('');
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
@@ -55,6 +58,18 @@ export default function TeamRosters({ teams, players, isAdmin, onAddPlayer, onRe
       await onUpdateTrainer(teamId, trainerValue.trim());
     }
     setEditingTrainerTeamId(null);
+  };
+
+  const startEditTeamName = (team: Team) => {
+    setEditingTeamNameId(team.id);
+    setTeamNameValue(team.name);
+  };
+
+  const saveTeamName = async (teamId: string) => {
+    if (onUpdateTeamName && teamNameValue.trim()) {
+      await onUpdateTeamName(teamId, teamNameValue.trim());
+    }
+    setEditingTeamNameId(null);
   };
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,7 +112,29 @@ export default function TeamRosters({ teams, players, isAdmin, onAddPlayer, onRe
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Users className="h-4 w-4" />
-                  {team.name}
+                  {editingTeamNameId === team.id ? (
+                    <div className="flex items-center gap-1">
+                      <Input
+                        className="h-6 text-sm py-0 px-2"
+                        value={teamNameValue}
+                        onChange={e => setTeamNameValue(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && saveTeamName(team.id)}
+                        autoFocus
+                      />
+                      <Button size="sm" variant="outline" className="h-6 px-2 text-xs" onClick={() => saveTeamName(team.id)}>
+                        Uložit
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      {team.name}
+                      {isAdmin && onUpdateTeamName && (
+                        <Button variant="ghost" size="icon" className="h-5 w-5 -ml-1" onClick={() => startEditTeamName(team)}>
+                          <Pencil className="h-3 w-3 text-muted-foreground" />
+                        </Button>
+                      )}
+                    </>
+                  )}
                   <Badge variant="secondary" className="text-xs">{teamPlayers.length} hráčů</Badge>
                 </CardTitle>
                 {isAdmin && (

@@ -42,6 +42,7 @@ interface TournamentContextType {
   deleteTournament: () => Promise<void>;
   deleteTeam: (teamId: string) => Promise<void>;
   updateTeamTrainer: (teamId: string, trainer: string) => Promise<void>;
+  updateTeamName: (teamId: string, name: string) => Promise<void>;
   reopenPlayoffMatch: (matchId: string) => Promise<void>;
   addPlayer: (teamId: string, name: string, number: number | null) => Promise<void>;
   removePlayer: (playerId: string) => Promise<void>;
@@ -689,6 +690,22 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
     await supabase.from('teams').update({ trainer: trainer || null }).eq('id', teamId);
   }, []);
 
+  const updateTeamName = useCallback(async (teamId: string, name: string) => {
+    if (!tournament) return;
+    await supabase.from('teams').update({ name }).eq('id', teamId);
+    setDetailCache(prev => {
+      const t = prev[tournament.id];
+      if (!t) return prev;
+      return {
+        ...prev,
+        [tournament.id]: {
+          ...t,
+          teams: t.teams.map(team => team.id === teamId ? { ...team, name } : team),
+        }
+      };
+    });
+  }, [tournament]);
+
   const reopenPlayoffMatch = useCallback(async (matchId: string) => {
     if (!tournament) return;
     const match = tournament.playoffMatches.find(m => m.id === matchId);
@@ -977,7 +994,7 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
       tournaments: isAdmin ? allTournaments : allTournaments.filter(t => !t.archived), allTournaments, tournament, players, scorers, loading,
       selectTournament, setTournament, saveTournament,
       updateMatch, updateMatchScore, updateMatchTime, updatePlayoffMatch, updatePlayoffMatchScore, startPlayoffMatch, startPlayoff,
-      deleteTournament, deleteTeam, updateTeamTrainer, reopenPlayoffMatch,
+      deleteTournament, deleteTeam, updateTeamTrainer, updateTeamName, reopenPlayoffMatch,
       addPlayer, removePlayer, importPlayersCSV,
       addScorer, removeScorer, reorderMatches, startTournament, updatePlayoffStartTime, shiftMatchTimes, shiftPlayoffTimes,
       archiveTournament, regenerateTournament, resetTournament, isAdmin, login, logout

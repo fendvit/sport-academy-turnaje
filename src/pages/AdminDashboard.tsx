@@ -19,7 +19,7 @@ import logo from '@/assets/logo_academy.svg';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function AdminDashboard() {
-  const { tournaments, tournament, players, loading, updateMatch, updateMatchScore, updateMatchTime, updatePlayoffMatch, updatePlayoffMatchScore, startPlayoffMatch, startPlayoff, deleteTournament, deleteTeam, updateTeamTrainer, reopenPlayoffMatch, isAdmin, logout, addPlayer, removePlayer, importPlayersCSV, reorderMatches, startTournament, updatePlayoffStartTime, selectTournament, archiveTournament } = useTournament();
+  const { tournaments, tournament, players, loading, updateMatch, updateMatchScore, updateMatchTime, updatePlayoffMatch, updatePlayoffMatchScore, startPlayoffMatch, startPlayoff, deleteTournament, deleteTeam, updateTeamTrainer, updateTeamName, reopenPlayoffMatch, isAdmin, logout, addPlayer, removePlayer, importPlayersCSV, reorderMatches, startTournament, updatePlayoffStartTime, selectTournament, archiveTournament } = useTournament();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -237,6 +237,7 @@ export default function AdminDashboard() {
               onImportCSV={importPlayersCSV}
               onDeleteTeam={deleteTeam}
               onUpdateTrainer={updateTeamTrainer}
+              onUpdateTeamName={updateTeamName}
             />
           </TabsContent>
 
