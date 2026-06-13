@@ -515,47 +515,31 @@ export function generateBracketPlayoff(tournament: Tournament, seedsOverride?: (
     }
   };
 
-  if (N >= 12) {
-    add(10, 0, seed(5), seed(12), 'Předkolo: 5 vs 12');
-    add(10, 1, seed(6), seed(11), 'Předkolo: 6 vs 11');
-    add(10, 2, seed(7), seed(10), 'Předkolo: 7 vs 10');
-    add(10, 3, seed(8), seed(9), 'Předkolo: 8 vs 9');
+  if (N >= 8) {
+    if (N >= 9) add(10, 3, seed(8), seed(9), 'Předkolo: 8 vs 9');
+    if (N >= 10) add(10, 2, seed(7), seed(10), 'Předkolo: 7 vs 10');
+    if (N >= 11) add(10, 1, seed(6), seed(11), 'Předkolo: 6 vs 11');
+    if (N >= 12) add(10, 0, seed(5), seed(12), 'Předkolo: 5 vs 12');
     
-    nextSlot();
+    if (N >= 9) nextSlot();
 
-    if (tournament.playoffConsolationMatches) {
+    if (tournament.playoffConsolationMatches && N >= 12) {
       add(11, 0, null, null, 'O 9.-12. místo (1)');
       add(11, 1, null, null, 'O 9.-12. místo (2)');
       nextSlot();
     }
 
-    add(4, 0, seed(1), null, 'Čtvrtfinále 1');
-    add(4, 1, seed(2), null, 'Čtvrtfinále 2');
-    add(4, 2, seed(3), null, 'Čtvrtfinále 3');
-    add(4, 3, seed(4), null, 'Čtvrtfinále 4');
+    add(4, 0, seed(1), N >= 9 ? null : seed(8), 'Čtvrtfinále 1');
+    add(4, 1, seed(2), N >= 10 ? null : seed(7), 'Čtvrtfinále 2');
+    add(4, 2, seed(3), N >= 11 ? null : seed(6), 'Čtvrtfinále 3');
+    add(4, 3, seed(4), N >= 12 ? null : seed(5), 'Čtvrtfinále 4');
 
     nextSlot();
 
     if (tournament.playoffConsolationMatches) {
-      add(12, 0, null, null, 'Skupina o umístění finále');
-    }
-
-    add(3, 0, null, null, 'Semifinále 1');
-    add(3, 1, null, null, 'Semifinále 2');
-
-    nextSlot();
-
-    add(2, 0, null, null, 'O 3. místo');
-    add(1, 0, null, null, 'Finále');
-  } else if (N >= 8) {
-    add(4, 0, seed(1), seed(8), 'Čtvrtfinále 1');
-    add(4, 1, seed(2), seed(7), 'Čtvrtfinále 2');
-    add(4, 2, seed(3), seed(6), 'Čtvrtfinále 3');
-    add(4, 3, seed(4), seed(5), 'Čtvrtfinále 4');
-
-    nextSlot();
-
-    if (tournament.playoffConsolationMatches) {
+      if (N >= 12) {
+        add(12, 0, null, null, 'Skupina o umístění finále');
+      }
       add(5, 0, null, null, 'O 5.-8. místo (1)');
       add(5, 1, null, null, 'O 5.-8. místo (2)');
       nextSlot();

@@ -240,15 +240,17 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
     ? [rawQuarterfinals[0], rawQuarterfinals[3], rawQuarterfinals[1], rawQuarterfinals[2]] 
     : rawQuarterfinals;
 
-  const preliminary = rawQuarterfinals.length === 4 && rawPreliminary.length === 4
+  // Align preliminary matches with their corresponding Quarterfinals
+  const preliminary = rawQuarterfinals.length === 4
     ? [
-        rawPreliminary.find(m => m.position === 3)!, // feeds QF1 (4,0)
-        rawPreliminary.find(m => m.position === 0)!, // feeds QF4 (4,3)
-        rawPreliminary.find(m => m.position === 2)!, // feeds QF2 (4,1)
-        rawPreliminary.find(m => m.position === 1)!, // feeds QF3 (4,2)
-      ].filter(Boolean)
+        rawPreliminary.find(m => m.position === 3) || null, // feeds QF1 (4,0)
+        rawPreliminary.find(m => m.position === 0) || null, // feeds QF4 (4,3)
+        rawPreliminary.find(m => m.position === 2) || null, // feeds QF2 (4,1)
+        rawPreliminary.find(m => m.position === 1) || null, // feeds QF3 (4,2)
+      ]
     : rawPreliminary.sort((a, b) => a.position - b.position);
 
+  const hasPreliminaryColumn = preliminary.some(m => m !== null);
   const semifinals = rawSemifinals;
 
   const Column = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
@@ -292,12 +294,16 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
             )}
             
             <div className="flex min-w-max gap-10 px-8">
-              {preliminary.length > 0 && (
+              {hasPreliminaryColumn && (
                 <Column>
-                  {preliminary.map(m => (
-                    <Node key={m.id} rightConnector={quarterfinals.length > 0}>
-                      {renderMatchCard(m)}
-                    </Node>
+                  {preliminary.map((m, i) => (
+                    m ? (
+                      <Node key={m.id} rightConnector={quarterfinals.length > 0}>
+                        {renderMatchCard(m)}
+                      </Node>
+                    ) : (
+                      <div key={`empty-${i}`} className="flex-1 py-3" />
+                    )
                   ))}
                 </Column>
               )}
