@@ -11,6 +11,7 @@ import TeamRosters from '@/components/tournament/TeamRosters';
 import TournamentExport from '@/components/tournament/TournamentExport';
 import TournamentSettingsDialog from '@/components/tournament/TournamentSettingsDialog';
 import ScorerManager from '@/components/tournament/ScorerManager';
+import TournamentStats from '@/components/tournament/TournamentStats';
 import { generatePlayoffBracket, isGroupPhaseComplete, getWinner, getTeamName, getPlayoffPreview } from '@/utils/tournament';
 import { LogOut, Trophy, AlertCircle, Clock, Check, Archive, ArchiveRestore } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -141,6 +142,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="matches" className="flex-1">Zápasy</TabsTrigger>
             <TabsTrigger value="standings" className="flex-1">Tabulky</TabsTrigger>
             <TabsTrigger value="playoff" className="flex-1">Playoff</TabsTrigger>
+            <TabsTrigger value="stats" className="flex-1">Statistiky</TabsTrigger>
             <TabsTrigger value="rosters" className="flex-1">Soupisky</TabsTrigger>
             <TabsTrigger value="scorers" className="flex-1">Zapisovatelé</TabsTrigger>
           </TabsList>
@@ -219,6 +221,10 @@ export default function AdminDashboard() {
                 playoffFormat={tournament.playoffFormat}
               />
             )}
+          </TabsContent>
+
+          <TabsContent value="stats" className="mt-4">
+            <TournamentStats tournament={tournament} />
           </TabsContent>
 
           <TabsContent value="rosters" className="mt-4">
