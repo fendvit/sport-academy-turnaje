@@ -65,14 +65,21 @@ export default function TournamentExport({ tournament, players }: Props) {
       return m;
     });
 
-  // Sort: preliminary first, then descending round (least important first, final last)
+  // Sort for schedule: strictly by scheduled time first
   const sortedPlayoffForSchedule = [...playoffWithLabels].sort((a, b) => {
+    if (a.scheduledTime && b.scheduledTime) {
+      if (a.scheduledTime < b.scheduledTime) return -1;
+      if (a.scheduledTime > b.scheduledTime) return 1;
+      return a.field - b.field;
+    }
+    if (a.scheduledTime) return -1;
+    if (b.scheduledTime) return 1;
     if (a.round === 10 && b.round !== 10) return -1;
     if (a.round !== 10 && b.round === 10) return 1;
     return b.round - a.round;
   });
-  const preliminary = playoffWithLabels.filter(m => m.round === 10);
-  const placements = playoffWithLabels.filter(m => m.round !== 10).sort((a, b) => b.round - a.round);
+  const preliminary = sortedPlayoffForSchedule.filter(m => m.round === 10);
+  const placements = sortedPlayoffForSchedule.filter(m => m.round !== 10);
 
   const headerBlock = (
     <div style={{ textAlign: 'center', marginBottom: 24 }}>
