@@ -19,6 +19,7 @@ export interface Tournament {
   tiebreakerRule: TiebreakerRule;
   playoffFormat: PlayoffFormat;
   playoffMatchDurationMinutes: number | null;
+  playoffBreakDurationMinutes: number | null;
   playoffConsolationMatches?: boolean;
 }
 

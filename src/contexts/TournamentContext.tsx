@@ -103,6 +103,7 @@ function dbToTournament(
     tiebreakerRule: (t.tiebreaker_rule as Tournament['tiebreakerRule']) || 'head_to_head',
     playoffFormat,
     playoffMatchDurationMinutes: t.playoff_match_duration_minutes ?? null,
+    playoffBreakDurationMinutes: t.playoff_break_duration_minutes ?? null,
     playoffConsolationMatches: t.playoff_consolation_matches ?? false,
     teams: teams.map(tm => ({ id: tm.id, name: tm.name, groupId: tm.group_id, trainer: tm.trainer || null })),
     groups: groups.map(g => ({ id: g.id, name: g.name })),
@@ -137,7 +138,7 @@ function dbToTournament(
 }
 
 export function TournamentProvider({ children }: { children: React.ReactNode }) {
-  const [tournamentList, setTournamentList] = useState<{ id: string; name: string; date: string; phase: string; category: string; archived: boolean; field_count: number; match_duration_minutes: number; break_duration_minutes: number; start_time: string; round_count: number; playoff_start_time: string | null; tiebreaker_rule: string; playoff_format: string; playoff_match_duration_minutes: number | null; playoff_consolation_matches: boolean }[]>([]);
+  const [tournamentList, setTournamentList] = useState<{ id: string; name: string; date: string; phase: string; category: string; archived: boolean; field_count: number; match_duration_minutes: number; break_duration_minutes: number; start_time: string; round_count: number; playoff_start_time: string | null; tiebreaker_rule: string; playoff_format: string; playoff_match_duration_minutes: number | null; playoff_break_duration_minutes: number | null; playoff_consolation_matches: boolean }[]>([]);
   const [detailCache, setDetailCache] = useState<Record<string, Tournament>>({});
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
   const [allScorers, setAllScorers] = useState<Scorer[]>([]);
@@ -286,6 +287,7 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
         tiebreaker_rule: t.tiebreakerRule || 'head_to_head',
         playoff_format: t.playoffFormat || 'placement',
         playoff_match_duration_minutes: t.playoffMatchDurationMinutes,
+        playoff_break_duration_minutes: t.playoffBreakDurationMinutes,
         playoff_consolation_matches: t.playoffConsolationMatches || false,
       })
       .select().single();
@@ -905,6 +907,7 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
       tiebreaker_rule: input.tiebreakerRule,
       playoff_format: input.playoffFormat,
       playoff_match_duration_minutes: input.playoffMatchDurationMinutes,
+      playoff_break_duration_minutes: input.playoffBreakDurationMinutes,
       playoff_consolation_matches: input.playoffConsolationMatches,
       phase: 'group',
     }).eq('id', tid);

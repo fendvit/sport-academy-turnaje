@@ -44,6 +44,7 @@ export default function TournamentSettingsDialog({ tournament }: Props) {
   const [playoffFormat, setPlayoffFormat] = useState<PlayoffFormat>(tournament.playoffFormat || 'placement');
   const [playoffConsolationMatches, setPlayoffConsolationMatches] = useState<boolean>(tournament.playoffConsolationMatches || false);
   const [playoffMatchDuration, setPlayoffMatchDuration] = useState<number | ''>(tournament.playoffMatchDurationMinutes ?? '');
+  const [playoffBreakDuration, setPlayoffBreakDuration] = useState<number | ''>(tournament.playoffBreakDurationMinutes ?? '');
   const [groupCount, setGroupCount] = useState(tournament.groups.length || 1);
 
   // teams: id-aware list (id null = new row)
@@ -76,6 +77,7 @@ export default function TournamentSettingsDialog({ tournament }: Props) {
       setPlayoffFormat(tournament.playoffFormat || 'placement');
       setPlayoffConsolationMatches(tournament.playoffConsolationMatches || false);
       setPlayoffMatchDuration(tournament.playoffMatchDurationMinutes ?? '');
+      setPlayoffBreakDuration(tournament.playoffBreakDurationMinutes ?? '');
       setGroupCount(tournament.groups.length || 1);
       setRows(initialRows());
       setShiftStart(tournament.startTime);
@@ -123,6 +125,7 @@ export default function TournamentSettingsDialog({ tournament }: Props) {
         playoffFormat,
         playoffConsolationMatches,
         playoffMatchDurationMinutes: typeof playoffMatchDuration === 'number' ? playoffMatchDuration : null,
+        playoffBreakDurationMinutes: typeof playoffBreakDuration === 'number' ? playoffBreakDuration : null,
         teams: rows.map((r) => ({ id: r.id, name: r.name, groupIndex: r.groupIndex })),
       };
       await regenerateTournament(input);
@@ -313,7 +316,19 @@ export default function TournamentSettingsDialog({ tournament }: Props) {
               placeholder={`Stejné jako základní (${matchDuration})`}
               onChange={(e) => setPlayoffMatchDuration(e.target.value === '' ? '' : Number(e.target.value))}
             />
-            <p className="text-xs text-muted-foreground">Nechte prázdné — použije se délka základního zápasu.</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Přestávka v playoff (min)</Label>
+            <Input
+              type="number"
+              min={0}
+              max={30}
+              value={playoffBreakDuration}
+              placeholder={`Stejné jako základní (${breakDuration})`}
+              onChange={(e) => setPlayoffBreakDuration(e.target.value === '' ? '' : Number(e.target.value))}
+            />
+            <p className="text-xs text-muted-foreground">Nechte prázdné — použije se hodnota ze základní části.</p>
           </div>
 
 

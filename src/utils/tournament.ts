@@ -466,7 +466,7 @@ export function generateBracketPlayoff(tournament: Tournament, seedsOverride?: (
   const N = seeds.length;
 
   const matchDuration = tournament.playoffMatchDurationMinutes ?? tournament.matchDurationMinutes ?? 12;
-  const breakDuration = tournament.breakDurationMinutes ?? 3;
+  const breakDuration = tournament.playoffBreakDurationMinutes ?? tournament.breakDurationMinutes ?? 3;
   const slotDuration = matchDuration + breakDuration;
   const startMin = computePlayoffStartMinutes(tournament);
 
@@ -594,8 +594,8 @@ function generatePlacementPlayoff(tournament: Tournament): PlayoffMatch[] {
   const playoffMatches: PlayoffMatch[] = [];
 
   // Calculate start time: use custom playoff start time or continue from last group match
-  const matchDuration = 11;
-  const breakDuration = 3;
+  const matchDuration = tournament.playoffMatchDurationMinutes ?? tournament.matchDurationMinutes ?? 11;
+  const breakDuration = tournament.playoffBreakDurationMinutes ?? tournament.breakDurationMinutes ?? 3;
   const slotDuration = matchDuration + breakDuration;
 
   let playoffStartMinutes: number;
@@ -786,8 +786,8 @@ export function getPlayoffPreview(tournament: Tournament): PlayoffMatch[] {
   if (maxLen === 0) return [];
 
   // Compute playoff start time (same logic as generatePlayoffBracket)
-  const matchDuration = 11;
-  const breakDuration = 3;
+  const matchDuration = tournament.playoffMatchDurationMinutes ?? tournament.matchDurationMinutes ?? 11;
+  const breakDuration = tournament.playoffBreakDurationMinutes ?? tournament.breakDurationMinutes ?? 3;
   const slotDuration = matchDuration + breakDuration;
 
   let playoffStartMinutes: number;
