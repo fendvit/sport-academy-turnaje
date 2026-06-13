@@ -12,6 +12,7 @@ import PublicDashboard from "./pages/PublicDashboard";
 import ScorerLogin from "./pages/ScorerLogin";
 import ScorerDashboard from "./pages/ScorerDashboard";
 import NotFound from "./pages/NotFound";
+import GlobalAdminAuth from "./components/GlobalAdminAuth";
 
 const queryClient = new QueryClient();
 
@@ -24,9 +25,11 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/admin/setup" element={<AdminSetup />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin" element={<GlobalAdminAuth />}>
+              <Route index element={<AdminLogin />} />
+              <Route path="setup" element={<AdminSetup />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
+            </Route>
             <Route path="/dashboard" element={<PublicDashboard />} />
             <Route path="/dashboard/:tournamentId" element={<PublicDashboard />} />
             <Route path="/scorer/:token" element={<ScorerLogin />} />
