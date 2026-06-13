@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Tournament, Team, Group, Match, PlayoffMatch, Player, Scorer } from '@/types/tournament';
 import { supabase } from '@/integrations/supabase/client';
-import { assignMatchTimes, generateAllMatches, generateGroups, assignTeamsToGroups, shiftTimeString } from '@/utils/tournament';
+import { assignMatchTimes, generateAllMatches, generateGroups, assignTeamsToGroups, shiftTimeString, generatePlayoffBracket } from '@/utils/tournament';
 
 export interface RegenerateInput {
   name: string;
@@ -1004,37 +1004,27 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
 
     // 4. Přepočítat časy existujících zápasů v playoff
     if (tournament.playoffMatches.length > 0) {
-      const matchDuration = input.playoffMatchDurationMinutes ?? input.matchDurationMinutes;
-      const breakDuration = input.playoffBreakDurationMinutes ?? input.breakDurationMinutes;
-      const slotDuration = matchDuration + breakDuration;
+      const tempTournament: Tournament = {
+        ...tournament,
+        startTime: input.startTime,
+        matchDurationMinutes: input.matchDurationMinutes,
+        breakDurationMinutes: input.breakDurationMinutes,
+        playoffStartTime: input.playoffStartTime || null,
+        playoffMatchDurationMinutes: input.playoffMatchDurationMinutes,
+        playoffBreakDurationMinutes: input.playoffBreakDurationMinutes,
+        fieldCount: input.fieldCount,
+        playoffFormat: input.playoffFormat,
+        playoffConsolationMatches: input.playoffConsolationMatches,
+        tiebreakerRule: input.tiebreakerRule,
+      };
 
-      let playoffStartMinutes: number;
-      if (input.playoffStartTime) {
-        const [pH, pM] = input.playoffStartTime.split(':').map(Number);
-        playoffStartMinutes = pH * 60 + pM;
-      } else {
-        const sortedGroupMatches = [...tournament.matches].sort((a, b) => a.order - b.order);
-        const lastGroupMatch = sortedGroupMatches[sortedGroupMatches.length - 1];
-        const lastGroupSlot = lastGroupMatch ? Math.floor(lastGroupMatch.order / input.fieldCount) : -1;
-        const [sH, sM] = input.startTime.split(':').map(Number);
-        const groupSlotDur = input.matchDurationMinutes + input.breakDurationMinutes;
-        playoffStartMinutes = sH * 60 + sM + (lastGroupSlot + 1) * groupSlotDur;
-      }
+      const mockPlayoff = generatePlayoffBracket(tempTournament);
 
-      // Sort matches: preliminary first, then descending round
-      const sorted = [...tournament.playoffMatches].sort((a, b) => {
-        if (a.round === 10 && b.round !== 10) return -1;
-        if (a.round !== 10 && b.round === 10) return 1;
-        return b.round - a.round;
-      });
-
-      for (let i = 0; i < sorted.length; i++) {
-        const slot = Math.floor(i / input.fieldCount);
-        const totalMinutes = playoffStartMinutes + slot * slotDuration;
-        const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
-        const m = (totalMinutes % 60).toString().padStart(2, '0');
-        const scheduledTime = `${h}:${m}`;
-        await supabase.from('playoff_matches').update({ scheduled_time: scheduledTime }).eq('id', sorted[i].id);
+      for (const existing of tournament.playoffMatches) {
+        const matchFromMock = mockPlayoff.find((m) => m.round === existing.round && m.position === existing.position);
+        if (matchFromMock && matchFromMock.scheduledTime !== existing.scheduledTime) {
+          await supabase.from('playoff_matches').update({ scheduled_time: matchFromMock.scheduledTime }).eq('id', existing.id);
+        }
       }
     }
 
