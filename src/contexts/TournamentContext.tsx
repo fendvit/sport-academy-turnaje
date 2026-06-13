@@ -422,6 +422,14 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
            else if (finishedMatch.position === 1) await setSlot(5, 1, true, loserId);
            else if (finishedMatch.position === 2) await setSlot(5, 1, false, loserId);
         }
+      } else if (finishedMatch.round === 11) {
+        if (tournament.playoffConsolationMatches) {
+          await setSlot(12, 0, finishedMatch.position === 0, winnerId);
+        }
+      } else if (finishedMatch.round === 5) {
+        if (tournament.playoffConsolationMatches) {
+          await setSlot(6, 0, finishedMatch.position === 0, winnerId);
+        }
       } else if (finishedMatch.round === 3) {
         // SF → Final (winners) + 3rd place (losers)
         await setSlot(1, 0, finishedMatch.position === 0, winnerId);

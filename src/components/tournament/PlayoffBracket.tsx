@@ -229,6 +229,11 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
     return a.position - b.position;
   });
 
+  const playdownFinals = playoffMatches.filter(m => m.round === 12 || m.round === 6).sort((a, b) => {
+    if (a.round !== b.round) return b.round - a.round; // 12 before 6
+    return a.position - b.position;
+  });
+
   // Reorder for visual correctness: 1v8 and 4v5 should meet in SF1.
   const quarterfinals = rawQuarterfinals.length === 4 
     ? [rawQuarterfinals[0], rawQuarterfinals[3], rawQuarterfinals[1], rawQuarterfinals[2]] 
@@ -339,15 +344,35 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
               )}
             </div>
 
-            {consolations.length > 0 && (
+            {(consolations.length > 0 || playdownFinals.length > 0) && (
               <div className="mt-12 px-8 pt-8 border-t border-dashed border-border/50">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">Playdown</h3>
-                <div className="flex flex-wrap gap-6">
-                  {consolations.map((m, i) => (
-                    <div key={m.id} className="w-72 shrink-0">
-                      {renderMatchCard({ ...m, label: `Playdown ${i + 1}` })}
+                <div className="flex gap-8 items-center overflow-x-auto pb-4">
+                  {consolations.length > 0 && (
+                    <div className="flex flex-col gap-6">
+                      {consolations.map((m, i) => (
+                        <div key={m.id} className="w-72 shrink-0">
+                          {renderMatchCard({ ...m, label: `Playdown ${i + 1}` })}
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+                  
+                  {consolations.length > 0 && playdownFinals.length > 0 && (
+                    <div className="flex items-center justify-center shrink-0 w-8">
+                      <div className="w-full border-t-2 border-muted-foreground/30"></div>
+                    </div>
+                  )}
+
+                  {playdownFinals.length > 0 && (
+                    <div className="flex flex-col gap-6 justify-center">
+                      {playdownFinals.map((m) => (
+                        <div key={m.id} className="w-72 shrink-0">
+                          {renderMatchCard({ ...m, label: 'Finále Playdown' })}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
