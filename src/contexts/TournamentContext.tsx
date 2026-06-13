@@ -890,16 +890,16 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
     })));
     if (tErr) console.error('Error upserting teams:', tErr);
 
-    // 4. Delete old groups
-    const newGroupIds = newGroups.map(g => g.id);
-    const { error: dgErr } = await supabase.from('groups').delete().eq('tournament_id', tid).not('id', 'in', `(${newGroupIds.join(',')})`);
-    if (dgErr) console.error('Error deleting old groups:', dgErr);
-
-    // 5. Delete removed teams and their players
+    // 4. Delete removed teams and their players
     if (removedTeamIds.length > 0) {
       await supabase.from('players').delete().in('team_id', removedTeamIds);
       await supabase.from('teams').delete().in('id', removedTeamIds);
     }
+
+    // 5. Delete old groups
+    const newGroupIds = newGroups.map(g => g.id);
+    const { error: dgErr } = await supabase.from('groups').delete().eq('tournament_id', tid).not('id', 'in', newGroupIds);
+    if (dgErr) console.error('Error deleting old groups:', dgErr);
 
     await supabase.from('tournaments').update({
       name: input.name.trim(),
