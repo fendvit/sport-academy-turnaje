@@ -102,6 +102,7 @@ export default function ScorerDashboard() {
               onUpdateMatchScore={(id, h, a) => updateMatchScore(id, h, a)}
               onUpdateTime={(matchId, time) => updateMatchTime(matchId, time)}
               isAdmin
+              filterField={scorerField}
             />
           </TabsContent>
 

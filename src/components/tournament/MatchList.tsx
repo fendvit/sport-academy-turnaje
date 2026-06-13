@@ -247,13 +247,14 @@ interface Props {
   onStartTournament?: () => void;
   isAdmin: boolean;
   filterTeamId?: string | null;
+  filterField?: number | null;
 }
 
 type ListItem =
   | { kind: 'match'; match: Match; slot: number }
   | { kind: 'free'; slot: number; field: number; scheduledTime: string | null; key: string };
 
-export default function MatchList({ matches, teams, groups, fieldCount, onUpdateScore, onUpdateMatchScore, onUpdateTime, onReorderMatches, onStartTournament, isAdmin, filterTeamId }: Props) {
+export default function MatchList({ matches, teams, groups, fieldCount, onUpdateScore, onUpdateMatchScore, onUpdateTime, onReorderMatches, onStartTournament, isAdmin, filterTeamId, filterField }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [homeScore, setHomeScore] = useState('');
   const [awayScore, setAwayScore] = useState('');
@@ -328,7 +329,7 @@ export default function MatchList({ matches, teams, groups, fieldCount, onUpdate
   // Only enabled when admin, no filter, no DnD reordering active concerns, swap supported.
   const buildItems = (): ListItem[] => {
     const items: ListItem[] = [];
-    if (!isAdmin || filterTeamId) {
+    if (!isAdmin || filterTeamId || filterField) {
       // No placeholders for non-admin or filtered view
       for (const m of unplayed) items.push({ kind: 'match', match: m, slot: Math.floor(m.order / effectiveFieldCount) });
       return items;
