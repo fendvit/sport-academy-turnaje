@@ -207,15 +207,15 @@ export default function AdminSetup() {
             </div>
 
             <div className="space-y-2">
-              <Label>Čas začátku playoff</Label>
+              <Label>Začátek playoff (čas nebo minuty po skupinách)</Label>
               <Input
-                type="time"
+                type="text"
                 value={playoffStartTime}
                 onChange={e => setPlayoffStartTime(e.target.value)}
-                placeholder="Automaticky"
+                placeholder="např. 10 (minut po) nebo 13:00"
               />
               <p className="text-xs text-muted-foreground">
-                Nechte prázdné — playoff naváže ihned po základní části
+                Můžete zadat pevnou hodinu (např. 13:00) nebo pauzu v minutách (např. 10). Nechte prázdné pro přímé navázání.
               </p>
             </div>
 

@@ -418,17 +418,26 @@ export function calculateStandings(
 }
 
 function computePlayoffStartMinutes(tournament: Tournament): number {
-  if (tournament.playoffStartTime) {
-    const [pH, pM] = tournament.playoffStartTime.split(":").map(Number);
-    return pH * 60 + pM;
-  }
   const { matches, fieldCount } = tournament;
   const sortedGroupMatches = [...matches].sort((a, b) => a.order - b.order);
   const lastGroupMatch = sortedGroupMatches[sortedGroupMatches.length - 1];
   const lastGroupSlot = lastGroupMatch ? Math.floor(lastGroupMatch.order / fieldCount) : -1;
   const [startHours, startMinutes] = tournament.startTime.split(":").map(Number);
   const groupSlotDuration = tournament.matchDurationMinutes + tournament.breakDurationMinutes;
-  return startHours * 60 + startMinutes + (lastGroupSlot + 1) * groupSlotDuration;
+  const groupEndMinutes = startHours * 60 + startMinutes + (lastGroupSlot + 1) * groupSlotDuration;
+
+  if (tournament.playoffStartTime) {
+    if (tournament.playoffStartTime.includes(":")) {
+      const [pH, pM] = tournament.playoffStartTime.split(":").map(Number);
+      return pH * 60 + pM;
+    } else {
+      const offset = parseInt(tournament.playoffStartTime, 10);
+      if (!isNaN(offset)) {
+        return groupEndMinutes + offset;
+      }
+    }
+  }
+  return groupEndMinutes;
 }
 
 /**
