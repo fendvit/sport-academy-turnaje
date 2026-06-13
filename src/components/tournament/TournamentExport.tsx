@@ -133,7 +133,7 @@ export default function TournamentExport({ tournament, players }: Props) {
 
       {/* Hidden export content */}
       <div className="fixed left-[-9999px] top-0">
-        <div ref={ref} style={{ width: mode === 'playoff' ? 'max-content' : 800, minWidth: 800, padding: 40, fontFamily: 'Inter, sans-serif', background: '#fff', color: '#283877' }}>
+        <div ref={ref} style={{ width: mode === 'playoff' ? 'max-content' : 800, minWidth: 800, padding: 40, fontFamily: 'system-ui, -apple-system, sans-serif', background: '#fff', color: '#283877' }}>
           {headerBlock}
           {(mode === 'standings' || mode === 'playoff') && podiumBlock}
 

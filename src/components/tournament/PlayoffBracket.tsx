@@ -81,25 +81,25 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
       }`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs leading-none py-1">{icon}{label}</Badge>
-            <span className={`inline-flex items-center leading-none rounded-full px-2 py-1 text-[10px] font-bold text-white ${getFieldColorClass(match.field)}`}>
+            <Badge variant="secondary" className="text-xs">{icon}{label}</Badge>
+            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold text-white ${getFieldColorClass(match.field)}`}>
               Hř. {match.field}
             </span>
             {match.scheduledTime && (
-              <span className="inline-flex items-center gap-1 leading-none text-[11px] text-muted-foreground">
+              <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
                 <Clock className="h-3 w-3" />
                 {match.scheduledTime}
               </span>
             )}
           </div>
           <div className="flex items-center gap-1">
-            {match.played && <Badge className="text-xs leading-none py-1 bg-primary/10 text-primary border-0">Dokončeno</Badge>}
+            {match.played && <Badge className="text-xs bg-primary/10 text-primary border-0">Dokončeno</Badge>}
           </div>
         </div>
 
         <div className="space-y-1">
           <div className={`flex items-center justify-between rounded-lg p-2 ${winnerId === match.homeTeamId ? 'bg-primary/10 font-bold' : 'bg-muted/50'}`}>
-            <span className="text-sm leading-none truncate mr-2">{homeName}</span>
+            <span className="text-sm truncate mr-2">{homeName}</span>
             {isLive && !match.played && (match.homeScore !== null) && (
               <div className="flex items-center gap-1 shrink-0">
                 {isAdmin && onUpdateMatchScore && (
@@ -107,13 +107,13 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
                     <Minus className="h-3 w-3" />
                   </Button>
                 )}
-                <span className="text-sm leading-none font-bold w-4 text-center">{match.homeScore}</span>
+                <span className="text-sm font-bold w-4 text-center">{match.homeScore}</span>
               </div>
             )}
-            {match.played && match.homeScore !== null && <span className="text-sm leading-none font-bold w-4 text-center shrink-0">{match.homeScore}</span>}
+            {match.played && match.homeScore !== null && <span className="text-sm font-bold w-4 text-center shrink-0">{match.homeScore}</span>}
           </div>
           <div className={`flex items-center justify-between rounded-lg p-2 ${winnerId === match.awayTeamId ? 'bg-primary/10 font-bold' : 'bg-muted/50'}`}>
-            <span className="text-sm leading-none truncate mr-2">{awayName}</span>
+            <span className="text-sm truncate mr-2">{awayName}</span>
             {isLive && !match.played && (match.awayScore !== null) && (
               <div className="flex items-center gap-1 shrink-0">
                 {isAdmin && onUpdateMatchScore && (
@@ -121,10 +121,10 @@ export default function PlayoffBracket({ playoffMatches, teams, onUpdateScore, o
                     <Minus className="h-3 w-3" />
                   </Button>
                 )}
-                <span className="text-sm leading-none font-bold w-4 text-center">{match.awayScore}</span>
+                <span className="text-sm font-bold w-4 text-center">{match.awayScore}</span>
               </div>
             )}
-            {match.played && match.awayScore !== null && <span className="text-sm leading-none font-bold w-4 text-center shrink-0">{match.awayScore}</span>}
+            {match.played && match.awayScore !== null && <span className="text-sm font-bold w-4 text-center shrink-0">{match.awayScore}</span>}
           </div>
         </div>
 
