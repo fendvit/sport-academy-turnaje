@@ -96,9 +96,8 @@ export default function TournamentSettingsDialog({ tournament }: Props) {
   const noGroupsAssigned = rows.every((r) => r.groupIndex === null);
   const groupsValid = allGroupsAssigned || noGroupsAssigned;
   const isValid =
-    name.trim() &&
-    category.trim() &&
-    rows.every((r) => r.name.trim()) &&
+    name.trim() !== '' &&
+    rows.every((r) => r.name.trim() !== '') &&
     rows.length >= Math.max(2, groupCount * 2) &&
     groupCount >= 1 &&
     groupCount <= maxGroups &&
@@ -476,6 +475,11 @@ export default function TournamentSettingsDialog({ tournament }: Props) {
           </div>
 
           <div className="flex flex-col gap-2 pt-4 border-t">
+            {!isValid && (
+              <p className="text-xs text-destructive text-center mb-2">
+                Nelze uložit. Zkontrolujte, zda má turnaj název a všechny týmy mají vyplněná jména.
+              </p>
+            )}
             <Button onClick={handleUpdateTimes} disabled={!isValid || updating || saving || resetting} size="lg" className="w-full">
               <Save className="mr-2 h-4 w-4" />
               {updating ? 'Ukládám a přepočítávám...' : 'Uložit změny a aplikovat nové časy'}
