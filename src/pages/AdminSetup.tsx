@@ -32,6 +32,7 @@ export default function AdminSetup() {
   const [tiebreakerRule, setTiebreakerRule] = useState<TiebreakerRule>('head_to_head');
   const [playoffFormat, setPlayoffFormat] = useState<PlayoffFormat>('placement');
   const [playoffConsolationMatches, setPlayoffConsolationMatches] = useState(false);
+  const [assignFieldsByGroup, setAssignFieldsByGroup] = useState(false);
   const [playoffMatchDuration, setPlayoffMatchDuration] = useState<number | ''>('');
   const [playoffBreakDuration, setPlayoffBreakDuration] = useState<number | ''>('');
   const [saving, setSaving] = useState(false);
@@ -83,7 +84,7 @@ export default function AdminSetup() {
     }
     
     try {
-      const rawMatches = generateAllMatches(assignedTeams, groups, fieldCount, roundCount);
+      const rawMatches = generateAllMatches(assignedTeams, groups, fieldCount, roundCount, assignFieldsByGroup);
       const matches = assignMatchTimes(rawMatches, startTime, matchDuration, fieldCount, breakDuration);
 
       const tournament: Tournament = {
@@ -109,6 +110,7 @@ export default function AdminSetup() {
         playoffConsolationMatches,
         playoffMatchDurationMinutes: typeof playoffMatchDuration === 'number' ? playoffMatchDuration : null,
         playoffBreakDurationMinutes: typeof playoffBreakDuration === 'number' ? playoffBreakDuration : null,
+        assignFieldsByGroup
       };
       await saveTournament(tournament);
       sessionStorage.setItem('florbal_admin', 'true');
@@ -272,6 +274,21 @@ export default function AdminSetup() {
               </div>
             )}
 
+            <div className="space-y-4 pt-6 border-t">
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Přiřazení hřišť (Základní část)</h4>
+              <div className="flex items-center space-x-2 rounded-lg border p-4">
+                <Checkbox id="assignFields" checked={assignFieldsByGroup} onCheckedChange={(c) => setAssignFieldsByGroup(c === true)} />
+                <div className="space-y-1 leading-none">
+                  <label htmlFor="assignFields" className="text-sm font-medium leading-none cursor-pointer">
+                    Skupina hraje pouze na jednom hřišti
+                  </label>
+                  <p className="text-xs text-muted-foreground">
+                    Pokud je zapnuto, zápasy Skupiny A budou pouze na hřišti 1, Skupiny B na hřišti 2 atd. (Playoff se hraje normálně).
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label>Délka playoff zápasu (min)</Label>
               <Input
@@ -282,9 +299,6 @@ export default function AdminSetup() {
                 placeholder={`Stejné jako základní (${matchDuration})`}
                 onChange={e => setPlayoffMatchDuration(e.target.value === '' ? '' : Number(e.target.value))}
               />
-              <p className="text-xs text-muted-foreground">
-                Nechte prázdné — použije se délka základního zápasu.
-              </p>
             </div>
 
             <div className="space-y-2">
@@ -297,9 +311,6 @@ export default function AdminSetup() {
                 placeholder={`Stejné jako základní (${breakDuration})`}
                 onChange={e => setPlayoffBreakDuration(e.target.value === '' ? '' : Number(e.target.value))}
               />
-              <p className="text-xs text-muted-foreground">
-                Nechte prázdné — použije se hodnota ze základní části.
-              </p>
             </div>
 
 

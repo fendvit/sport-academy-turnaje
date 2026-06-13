@@ -21,6 +21,7 @@ export interface Tournament {
   playoffMatchDurationMinutes: number | null;
   playoffBreakDurationMinutes: number | null;
   playoffConsolationMatches?: boolean;
+  assignFieldsByGroup?: boolean;
 }
 
 export type TiebreakerRule = 'head_to_head' | 'goal_diff' | 'wins';

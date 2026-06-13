@@ -45,6 +45,7 @@ export default function TournamentSettingsDialog({ tournament }: Props) {
   const [playoffConsolationMatches, setPlayoffConsolationMatches] = useState<boolean>(tournament.playoffConsolationMatches || false);
   const [playoffMatchDuration, setPlayoffMatchDuration] = useState<number | ''>(tournament.playoffMatchDurationMinutes ?? '');
   const [playoffBreakDuration, setPlayoffBreakDuration] = useState<number | ''>(tournament.playoffBreakDurationMinutes ?? '');
+  const [assignFieldsByGroup, setAssignFieldsByGroup] = useState<boolean>(tournament.assignFieldsByGroup || false);
   const [groupCount, setGroupCount] = useState(tournament.groups.length || 1);
 
   // teams: id-aware list (id null = new row)
@@ -78,6 +79,7 @@ export default function TournamentSettingsDialog({ tournament }: Props) {
       setPlayoffConsolationMatches(tournament.playoffConsolationMatches || false);
       setPlayoffMatchDuration(tournament.playoffMatchDurationMinutes ?? '');
       setPlayoffBreakDuration(tournament.playoffBreakDurationMinutes ?? '');
+      setAssignFieldsByGroup(tournament.assignFieldsByGroup || false);
       setGroupCount(tournament.groups.length || 1);
       setRows(initialRows());
       setShiftStart(tournament.startTime);
@@ -126,6 +128,7 @@ export default function TournamentSettingsDialog({ tournament }: Props) {
         playoffConsolationMatches,
         playoffMatchDurationMinutes: typeof playoffMatchDuration === 'number' ? playoffMatchDuration : null,
         playoffBreakDurationMinutes: typeof playoffBreakDuration === 'number' ? playoffBreakDuration : null,
+        assignFieldsByGroup,
         teams: rows.map((r) => ({ id: r.id, name: r.name, groupIndex: r.groupIndex })),
       };
       await regenerateTournament(input);
@@ -336,6 +339,20 @@ export default function TournamentSettingsDialog({ tournament }: Props) {
             <p className="text-xs text-muted-foreground">Nechte prázdné — použije se hodnota ze základní části.</p>
           </div>
 
+          <div className="space-y-4">
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Přiřazení hřišť</h4>
+            <div className="flex items-center space-x-2 rounded-lg border p-4">
+              <Checkbox id="assignFields" checked={assignFieldsByGroup} onCheckedChange={(c) => setAssignFieldsByGroup(c === true)} />
+              <div className="space-y-1 leading-none">
+                <label htmlFor="assignFields" className="text-sm font-medium leading-none cursor-pointer">
+                  Skupina hraje pouze na jednom hřišti
+                </label>
+                <p className="text-xs text-muted-foreground">
+                  Pokud je zapnuto, zápasy Skupiny A budou pouze na hřišti 1, Skupiny B na hřišti 2 atd. (Playoff se hraje normálně).
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="rounded-md border border-border bg-muted/30 p-3 space-y-3">
             <div>

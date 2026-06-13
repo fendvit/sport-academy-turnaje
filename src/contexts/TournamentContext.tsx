@@ -105,6 +105,7 @@ function dbToTournament(
     playoffMatchDurationMinutes: t.playoff_match_duration_minutes ?? null,
     playoffBreakDurationMinutes: t.playoff_break_duration_minutes ?? null,
     playoffConsolationMatches: t.playoff_consolation_matches ?? false,
+    assignFieldsByGroup: t.assign_fields_by_group ?? false,
     teams: teams.map(tm => ({ id: tm.id, name: tm.name, groupId: tm.group_id, trainer: tm.trainer || null })),
     groups: groups.map(g => ({ id: g.id, name: g.name })),
     matches: matches.map(m => ({
@@ -138,7 +139,7 @@ function dbToTournament(
 }
 
 export function TournamentProvider({ children }: { children: React.ReactNode }) {
-  const [tournamentList, setTournamentList] = useState<{ id: string; name: string; date: string; phase: string; category: string; archived: boolean; field_count: number; match_duration_minutes: number; break_duration_minutes: number; start_time: string; round_count: number; playoff_start_time: string | null; tiebreaker_rule: string; playoff_format: string; playoff_match_duration_minutes: number | null; playoff_break_duration_minutes: number | null; playoff_consolation_matches: boolean }[]>([]);
+  const [tournamentList, setTournamentList] = useState<{ id: string; name: string; date: string; phase: string; category: string; archived: boolean; field_count: number; match_duration_minutes: number; break_duration_minutes: number; start_time: string; round_count: number; playoff_start_time: string | null; tiebreaker_rule: string; playoff_format: string; playoff_match_duration_minutes: number | null; playoff_break_duration_minutes: number | null; playoff_consolation_matches: boolean; assign_fields_by_group: boolean }[]>([]);
   const [detailCache, setDetailCache] = useState<Record<string, Tournament>>({});
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
   const [allScorers, setAllScorers] = useState<Scorer[]>([]);
@@ -150,7 +151,7 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
   const loadTournamentList = useCallback(async () => {
     const { data } = await supabase
       .from('tournaments')
-      .select('id, name, date, created_at, phase, field_count, category, match_duration_minutes, break_duration_minutes, start_time, round_count, playoff_start_time, archived, tiebreaker_rule, playoff_format, playoff_match_duration_minutes, playoff_consolation_matches')
+      .select('id, name, date, created_at, phase, field_count, category, match_duration_minutes, break_duration_minutes, start_time, round_count, playoff_start_time, archived, tiebreaker_rule, playoff_format, playoff_match_duration_minutes, playoff_consolation_matches, assign_fields_by_group')
       .order('created_at', { ascending: false });
 
     if (!data || data.length === 0) {
@@ -288,7 +289,8 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
         playoff_format: t.playoffFormat || 'placement',
         playoff_match_duration_minutes: t.playoffMatchDurationMinutes,
         playoff_break_duration_minutes: t.playoffBreakDurationMinutes,
-        playoff_consolation_matches: t.playoffConsolationMatches || false,
+        playoff_consolation_matches: t.playoffConsolationMatches,
+        assign_fields_by_group: t.assignFieldsByGroup,
       })
       .select().single();
 
@@ -860,7 +862,7 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
       }
     }
 
-    const rawMatches = generateAllMatches(newTeams, newGroups, input.fieldCount, input.roundCount);
+    const rawMatches = generateAllMatches(newTeams, newGroups, input.fieldCount, input.roundCount, input.assignFieldsByGroup);
     const newMatches = assignMatchTimes(
       rawMatches, input.startTime, input.matchDurationMinutes,
       input.fieldCount, input.breakDurationMinutes,
@@ -937,7 +939,11 @@ export function TournamentProvider({ children }: { children: React.ReactNode }) 
     const tid = tournament.id;
 
     const rawMatches = generateAllMatches(
-      tournament.teams, tournament.groups, tournament.fieldCount, tournament.roundCount,
+      tournament.teams,
+      tournament.groups,
+      tournament.fieldCount,
+      tournament.roundCount,
+      tournament.assignFieldsByGroup
     );
     const newMatches = assignMatchTimes(
       rawMatches, tournament.startTime, tournament.matchDurationMinutes,

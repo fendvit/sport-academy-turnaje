@@ -156,6 +156,9 @@ function tryScheduleWithCooldown(
       if (courtOccupied[f - 1]) continue;
 
       const idx = remaining.findIndex((m) => {
+        // Enforce strict field assignment if specified
+        if ((m as any).targetField !== undefined && (m as any).targetField !== f) return false;
+
         if (slotTeams.has(m.homeTeamId) || slotTeams.has(m.awayTeamId)) return false;
         // Block immediate rematch (back-to-back vs same opponent)
         if (lastOpponent[m.homeTeamId] === m.awayTeamId) return false;
@@ -227,11 +230,15 @@ export function generateAllMatches(
   groups: Group[],
   fieldCount: number,
   roundCount: number = 1,
+  assignFieldsByGroup: boolean = false
 ): Match[] {
   // Generate matches per group separately
   const matchesByGroup: Match[][] = [];
-  for (const group of groups) {
-    const groupMatches = generateRoundRobinMatches(teams, group.id, fieldCount, 0, roundCount);
+  for (let gi = 0; gi < groups.length; gi++) {
+    const groupMatches = generateRoundRobinMatches(teams, groups[gi].id, fieldCount, 0, roundCount);
+    if (assignFieldsByGroup) {
+      groupMatches.forEach(m => (m as any).targetField = (gi % fieldCount) + 1);
+    }
     matchesByGroup.push(groupMatches);
   }
 
